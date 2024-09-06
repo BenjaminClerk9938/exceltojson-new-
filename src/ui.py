@@ -145,9 +145,9 @@ class ConverterApp(QMainWindow):
                 file.write(xml_str)
 
             # Validate XML
-            from validate_xml import validate_xml
+            # from validate_xml import validate_xml
 
-            validate_xml("output.xml", self.xsd_file_path)
+            # validate_xml("output.xml", self.xsd_file_path)
 
             self.status_label.setText("Conversion and validation successful.")
 

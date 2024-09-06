@@ -1,6 +1,6 @@
 import pandas as pd
 from lxml import etree
-import xml.etree.ElementTree as ET
+import xml.dom.minidom
 from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -119,53 +119,97 @@ class ConverterApp(QMainWindow):
             # Read the Excel file
             df = pd.read_excel(self.excel_file_path)
 
+            # Define namespaces
+            ns = {"ns1": "http://www.sec.gov/edgar/document/thirteenf/informationtable"}
+
             # Create the root element
-            root = ET.Element(
-                "ns1:informationTable",
-                xmlns_ns1="http://www.sec.gov/edgar/document/thirteenf/informationtable",
+            root = etree.Element(
+                "{http://www.sec.gov/edgar/document/thirteenf/informationtable}informationTable",
+                nsmap=ns,
             )
 
             # Iterate over rows in the DataFrame
             for _, row in df.iterrows():
-                info_table = ET.SubElement(root, "ns1:infoTable")
+                info_table = etree.SubElement(
+                    root,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}infoTable",
+                )
 
                 # Add elements to infoTable
-                ET.SubElement(info_table, "ns1:nameOfIssuer").text = row["NameOfIssuer"]
-                ET.SubElement(info_table, "ns1:titleOfClass").text = row["TitleOfClass"]
-                ET.SubElement(info_table, "ns1:cusip").text = row["CUSIP"]
-                if pd.notna(row["FIGI"]):
-                    ET.SubElement(info_table, "ns1:figi").text = row["FIGI"]
-                ET.SubElement(info_table, "ns1:value").text = str(row["Value"])
+                etree.SubElement(
+                    info_table,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}nameOfIssuer",
+                ).text = str(row.get("NameOfIssuer", ""))
+                etree.SubElement(
+                    info_table,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}titleOfClass",
+                ).text = str(row.get("TitleOfClass", ""))
+                etree.SubElement(
+                    info_table,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}cusip",
+                ).text = str(row.get("CUSIP", ""))
+                if pd.notna(row.get("FIGI")):
+                    etree.SubElement(
+                        info_table,
+                        "{http://www.sec.gov/edgar/document/thirteenf/informationtable}figi",
+                    ).text = str(row.get("FIGI", ""))
+                etree.SubElement(
+                    info_table,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}value",
+                ).text = str(row.get("Value", ""))
 
-                shrs_or_prn_amt = ET.SubElement(info_table, "ns1:shrsOrPrnAmt")
-                ET.SubElement(shrs_or_prn_amt, "ns1:sshPrnamt").text = str(
-                    row["Shares"]
+                shrs_or_prn_amt = etree.SubElement(
+                    info_table,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}shrsOrPrnAmt",
                 )
-                ET.SubElement(shrs_or_prn_amt, "ns1:sshPrnamtType").text = row[
-                    "SharesOrPrincipal"
-                ]
+                etree.SubElement(
+                    shrs_or_prn_amt,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}sshPrnamt",
+                ).text = str(row.get("Shares", ""))
+                etree.SubElement(
+                    shrs_or_prn_amt,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}sshPrnamtType",
+                ).text = str(row.get("SharesOrPrincipal", ""))
 
-                if pd.notna(row["PutOrCall"]):
-                    ET.SubElement(info_table, "ns1:putCall").text = row["PutOrCall"]
+                if pd.notna(row.get("PutOrCall")):
+                    etree.SubElement(
+                        info_table,
+                        "{http://www.sec.gov/edgar/document/thirteenf/informationtable}putCall",
+                    ).text = str(row.get("PutOrCall", ""))
 
-                ET.SubElement(info_table, "ns1:investmentDiscretion").text = row[
-                    "InvestmentDiscretion"
-                ]
+                etree.SubElement(
+                    info_table,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}investmentDiscretion",
+                ).text = str(row.get("InvestmentDiscretion", ""))
 
-                if pd.notna(row["OtherManagers"]):
-                    ET.SubElement(info_table, "ns1:otherManager").text = row[
-                        "OtherManagers"
-                    ]
+                if pd.notna(row.get("OtherManagers")):
+                    etree.SubElement(
+                        info_table,
+                        "{http://www.sec.gov/edgar/document/thirteenf/informationtable}otherManager",
+                    ).text = str(row.get("OtherManagers", ""))
 
-                voting_auth = ET.SubElement(info_table, "ns1:votingAuthority")
-                ET.SubElement(voting_auth, "ns1:Sole").text = str(row["Sole"])
-                ET.SubElement(voting_auth, "ns1:Shared").text = str(row["Shared"])
-                ET.SubElement(voting_auth, "ns1:None").text = str(row["None"])
+                voting_auth = etree.SubElement(
+                    info_table,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}votingAuthority",
+                )
+                etree.SubElement(
+                    voting_auth,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}Sole",
+                ).text = str(row.get("Sole", ""))
+                etree.SubElement(
+                    voting_auth,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}Shared",
+                ).text = str(row.get("Shared", ""))
+                etree.SubElement(
+                    voting_auth,
+                    "{http://www.sec.gov/edgar/document/thirteenf/informationtable}None",
+                ).text = str(row.get("None", ""))
 
             # Convert to XML string
-            xml_str = ET.tostring(
-                root, encoding="utf-8", xml_declaration=True, method="xml"
+            xml_str = etree.tostring(
+                root, encoding="utf-8", xml_declaration=True, pretty_print=True
             ).decode()
+
             # Save XML file
             with open("output.xml", "w") as file:
                 file.write(xml_str)
@@ -173,9 +217,10 @@ class ConverterApp(QMainWindow):
             # Validate XML
             from validate_xml import validate_xml
 
-            validate_xml("output.xml", self.xsd_file_path)
-
-            self.status_label.setText("Conversion and validation successful.")
+            if validate_xml("output.xml", self.xsd_file_path):
+                self.status_label.setText("Conversion and validation successful.")
+            else:
+                self.status_label.setText("Validation failed.")
 
         except Exception as e:
             self.status_label.setText(f"Error: {str(e)}")
