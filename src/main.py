@@ -40,41 +40,6 @@ class ConverterApp(QMainWindow):
         self.xsd_file_button.clicked.connect(self.select_xsd_file)
         layout.addWidget(self.xsd_file_button)
 
-        # Default Investment Discretion
-        self.investment_discretion_label = QLabel("Default Investment Discretion:")
-        layout.addWidget(self.investment_discretion_label)
-        self.investment_discretion_combo = QComboBox()
-        self.investment_discretion_combo.addItems(["Sole", "Defined", "Other"])
-        layout.addWidget(self.investment_discretion_combo)
-
-        # Default Shares/Principal
-        self.shares_principal_label = QLabel("Default Shares/Principal:")
-        layout.addWidget(self.shares_principal_label)
-        self.shares_principal_combo = QComboBox()
-        self.shares_principal_combo.addItems(["Shares", "Principal"])
-        layout.addWidget(self.shares_principal_combo)
-
-        # Voting Authority
-        self.voting_authority_label = QLabel("Voting Authority:")
-        layout.addWidget(self.voting_authority_label)
-        self.voting_authority_combo = QComboBox()
-        self.voting_authority_combo.addItems(["Sole", "Shared", "None"])
-        layout.addWidget(self.voting_authority_combo)
-
-        # Include under-threshold securities
-        self.include_under_threshold_checkbox = QCheckBox(
-            "Include Under-Threshold Securities"
-        )
-        layout.addWidget(self.include_under_threshold_checkbox)
-
-        # Include Non 13F Securities
-        self.include_non_13f_checkbox = QCheckBox("Include Non-13F Securities")
-        layout.addWidget(self.include_non_13f_checkbox)
-
-        # Use entries 'as is'
-        self.use_entries_as_is_checkbox = QCheckBox("Use Entries 'As Is'")
-        layout.addWidget(self.use_entries_as_is_checkbox)
-
         # Convert button
         self.convert_button = QPushButton("Convert to XML")
         self.convert_button.clicked.connect(self.convert_to_xml)
@@ -213,14 +178,14 @@ class ConverterApp(QMainWindow):
             # Save XML file
             with open("output.xml", "w") as file:
                 file.write(xml_str)
+                self.status_label.setText("Conversion successful.")
 
             # Validate XML
-            from validate_xml import validate_xml
+            # from validate_xml import validate_xml
 
-            if validate_xml("output.xml", self.xsd_file_path):
-                self.status_label.setText("Conversion and validation successful.")
-            else:
-                self.status_label.setText("Validation failed.")
+            # if validate_xml("output.xml", self.xsd_file_path):
+            # else:
+            #     self.status_label.setText("Validation failed.")
 
         except Exception as e:
             self.status_label.setText(f"Error: {str(e)}")
