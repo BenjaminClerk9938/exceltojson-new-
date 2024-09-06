@@ -12,7 +12,9 @@ from PyQt5.QtWidgets import (
     QCheckBox,
     QLabel,
     QLineEdit,
+    QSizePolicy,
 )
+from PyQt5.QtGui import QFont
 import sys
 
 
@@ -23,25 +25,40 @@ class ConverterApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle("13F Excel to XML Converter")
+        self.setGeometry(100, 100, 900, 600)  # Increase the main window size
 
         layout = QVBoxLayout()
 
         # Excel file selection
+        font = QFont()
+        font.setPointSize(14)
         self.excel_file_label = QLabel("Select Excel File:")
+        self.excel_file_label.setFont(font)
         layout.addWidget(self.excel_file_label)
         self.excel_file_button = QPushButton("Browse")
+        self.excel_file_button.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding
+        )  # Make buttons larger
+
+        self.excel_file_button.setFont(font)  # Incre
+
         self.excel_file_button.clicked.connect(self.select_excel_file)
         layout.addWidget(self.excel_file_button)
 
         # XSD file selection
         self.xsd_file_label = QLabel("Select XSD File:")
+        self.xsd_file_label.setFont(font)
         layout.addWidget(self.xsd_file_label)
         self.xsd_file_button = QPushButton("Browse")
+        self.xsd_file_button.setFont(font)
+        self.xsd_file_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.xsd_file_button.clicked.connect(self.select_xsd_file)
         layout.addWidget(self.xsd_file_button)
 
         # Convert button
         self.convert_button = QPushButton("Convert to XML")
+        self.convert_button.setFont(font)
+        self.convert_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.convert_button.clicked.connect(self.convert_to_xml)
         layout.addWidget(self.convert_button)
 
